@@ -86,10 +86,18 @@ const registerRules = reactive<FormRules>({
 const currentTime = computed(() => {
 	return formatAxis(new Date());
 });
+
+// 新增：存储用户ID到Session（与聊天页面统一存储方式）
+const saveLoginUserId = (userId: string | number) => {
+	Session.set('loginUserId', userId.toString()); // 存储user表的真实ID（转字符串避免类型问题）
+};
+
 // 登录
-const onSignIn = async () => {
+const onSignIn = async (userId: string | number) => { // 接收userID参数
 	// 存储 token 到浏览器缓存
 	Session.set('token', Math.random().toString(36).substr(0));
+	// 存储user表的真实ID（关键修改）
+	saveLoginUserId(userId);
 	// 模拟数据，对接接口时，记得删除多余代码及对应依赖的引入。用于 `/src/stores/userInfo.ts` 中不同用户登录判断（模拟数据）
 	Cookies.set('userName', ruleForm.username);
 	if (!themeConfig.value.isRequestRoutes) {
@@ -104,6 +112,7 @@ const onSignIn = async () => {
 		signInSuccess(isNoPower);
 	}
 };
+
 // 登录成功后的跳转
 const signInSuccess = (isNoPower: boolean | undefined) => {
 	if (isNoPower) {
@@ -112,15 +121,14 @@ const signInSuccess = (isNoPower: boolean | undefined) => {
 	} else {
 		// 初始化登录成功时间问候语
 		let currentTimeInfo = currentTime.value;
-		// 登录成功，跳到转首页
-		// 如果是复制粘贴的路径，非首页/登录页，那么登录成功后重定向到对应的路径中
+		// 登录成功，跳到转首页（可根据需求改为直接跳聊天页：router.push('/chat')）
 		if (route.query?.redirect) {
 			router.push({
 				path: <string>route.query?.redirect,
 				query: Object.keys(<string>route.query?.params).length > 0 ? JSON.parse(<string>route.query?.params) : '',
 			});
 		} else {
-			router.push('/');
+			router.push('/'); // 首页路由，若需直接进聊天页，改为 '/chat'
 		}
 		// 登录成功提示
 		const signInText = t('message.signInText');
@@ -129,16 +137,23 @@ const signInSuccess = (isNoPower: boolean | undefined) => {
 		NextLoading.start();
 	}
 };
+
 const submitForm = (formEl: FormInstance | undefined) => {
 	if (!formEl) return;
 	formEl.validate((valid) => {
 		if (valid) {
-			request.post('/api/user/login', ruleForm).then((res) => {
+			request.post('api/user/login', ruleForm).then((res) => {
 				console.log(res);
 				if (res.code == 0) {
-					Cookies.set('role', res.data.role); //  设置角色
-					//登录成功
-					onSignIn();
+					Cookies.set('role', res.data.role); // 设置角色
+					// 关键修改：获取后端返回的user表ID（res.data.id），传入登录成功逻辑
+					const userId = res.data.id; // 假设后端返回的user表ID字段为id（需与后端字段一致）
+					if (!userId) {
+						ElMessage.error('登录失败：未获取到用户ID');
+						return;
+					}
+					// 登录成功（传入userID）
+					onSignIn(userId);
 				} else {
 					ElMessage({
 						type: 'error',
@@ -155,12 +170,12 @@ const submitForm = (formEl: FormInstance | undefined) => {
 </script>
 
 <style scoped>
+/* 原有样式完全保留，无需修改 */
 .login-container {
 	min-height: 100vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	/* background: linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%); */
 	background-image: url('/bg1.jpg');
 	background-size: cover;
 	padding: 20px;
