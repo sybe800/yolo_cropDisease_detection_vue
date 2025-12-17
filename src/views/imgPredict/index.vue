@@ -257,7 +257,6 @@ const upData = () => {
 			getAISuggestion();
 		} else {
 			ElMessage.error(res.msg);
-			
 		}
 	});
 };

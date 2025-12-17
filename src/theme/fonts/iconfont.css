@@ -83,7 +83,9 @@
 .icon-sj:before {
   content: "\e611";
 }
-
+.icon-znjc:before {
+  content: "\e60a";
+}
 .icon-znwd:before {
   content: "\e602";
 }

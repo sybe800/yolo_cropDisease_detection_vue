@@ -19,9 +19,9 @@ let plantingStatsChart: echarts.ECharts
 // 天气信息
 const weatherInfo = ref({
   date: '',
-  weekday: '2',
+  weekday: '',
   status: '',
-  temperature: '23',
+  temperature: '',
   weather: '',
   wind: '',
   airQuality: '',

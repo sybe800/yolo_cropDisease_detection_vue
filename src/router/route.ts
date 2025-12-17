@@ -261,9 +261,10 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 				},
 			},
 			{
-				path: '/smartChat',
-				name: 'smartChat',
-				component: () => import('/@/views/smartChat/index.vue'),
+				path: '/smartAssistant',
+				name: 'smartAssistant',
+				component: () => import('/@/layout/routerView/parent.vue'), // 复用父菜单占位组件
+				redirect: '/decisionModel', // 默认跳转到智能决策
 				meta: {
 					title: '智能助手',
 					isLink: '',
@@ -272,8 +273,40 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common', 'others'],
-					icon: 'iconfontjs icon-znwd',
+					icon: 'iconfontjs icon-znwd', // 父菜单图标（沿用智能问答原图标）
 				},
+				children: [
+					{
+						path: '/decisionModel',
+						name: 'decisionModel',
+						component: () => import('/@/views/decisionModel/index.vue'),
+						meta: {
+							title: '智能决策',
+							isLink: '',
+							isHide: false,
+							isKeepAlive: true,
+							isAffix: false,
+							isIframe: false,
+							roles: ['admin', 'common', 'others'],
+							icon: 'iconfontjs icon-znjc', // 保留原智能决策图标
+						},
+					},
+					{
+						path: '/smartChat',
+						name: 'smartChat',
+						component: () => import('/@/views/smartChat/index.vue'),
+						meta: {
+							title: '智能问答',
+							isLink: '',
+							isHide: false,
+							isKeepAlive: true,
+							isAffix: false,
+							isIframe: false,
+							roles: ['admin', 'common', 'others'],
+							icon: 'iconfontjs icon-znwd', // 保留原智能问答图标
+						},
+					}
+				]
 			},
 			{
 				path: '/usermanage',
